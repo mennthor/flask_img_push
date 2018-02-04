@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from .database import database, Post
 from datetime import datetime
 
@@ -46,3 +46,8 @@ def add_post():
 def get_posts():
     posts = list(Post.select().dicts())
     return jsonify(posts=posts)
+
+
+@app.route('/images/<name>')
+def images(name):
+    return send_from_directory(app.config['IMG_DIR'], name)
