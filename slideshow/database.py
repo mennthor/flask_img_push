@@ -4,7 +4,7 @@ database = SqliteDatabase(None)
 
 
 class Post(Model):
-    image_path = TextField()
+    name = TextField()
     timestamp = DateTimeField()
     comment = TextField()
 
