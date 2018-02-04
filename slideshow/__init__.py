@@ -32,11 +32,13 @@ def add_post():
     post = Post()
     post.timestamp = datetime.utcnow()
     post.comment = request.form["comment"]
+
     ext = os.path.splitext(request.files["image"].filename)[1]
     filename = post.timestamp.isoformat() + ext
-
     filename = filename.replace(":", "_")
+
     request.files["image"].save(os.path.join(app.config["IMG_DIR"], filename))
+
     post.name = filename
     post.save()
     return jsonify(status="OK")
