@@ -1,7 +1,9 @@
 import os
 from flask import Flask, render_template, jsonify, request, send_from_directory
-from .database import database, Post
 from datetime import datetime
+
+from .database import database, Post
+from .image import resize
 
 app = Flask(__name__)
 app.config["DATABASE"] = os.getenv("SLIDESHOW_DB", "slideshow.sqlite")
@@ -13,6 +15,9 @@ app.config["IMG_DIR"] = os.getenv(
 @app.before_first_request
 def init_db():
     os.makedirs(app.config["IMG_DIR"], exist_ok=True)
+    os.makedirs(os.path.join(app.config["IMG_DIR"], 'original'), exist_ok=True)
+    os.makedirs(os.path.join(app.config["IMG_DIR"], 'small'), exist_ok=True)
+
     database.init(app.config["DATABASE"])
     database.create_tables([Post], safe=True)
 
@@ -37,7 +42,11 @@ def add_post():
     filename = post.timestamp.isoformat() + ext
     filename = filename.replace(":", "_")
 
-    request.files["image"].save(os.path.join(app.config["IMG_DIR"], filename))
+    original_path = os.path.join(app.config["IMG_DIR"], 'original', filename)
+    small_path = os.path.join(app.config["IMG_DIR"], 'small', filename)
+
+    request.files["image"].save(original_path)
+    resize(original_path, small_path)
 
     post.name = filename
     post.save()
@@ -50,6 +59,12 @@ def get_posts():
     return jsonify(posts=posts)
 
 
-@app.route('/images/<name>')
-def images(name):
-    return send_from_directory(app.config['IMG_DIR'], name)
+@app.route('/images/small/<name>')
+def small(name):
+    return send_from_directory(os.path.join(app.config['IMG_DIR'], 'small'), name)
+
+
+@app.route('/images/original/<name>')
+def original(name):
+    return send_from_directory(os.path.join(app.config['IMG_DIR'], 'original'), name)
+
