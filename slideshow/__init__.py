@@ -39,8 +39,7 @@ def add_post():
     post.comment = request.form["comment"]
 
     ext = os.path.splitext(request.files["image"].filename)[1]
-    filename = post.timestamp.isoformat() + ext
-    filename = filename.replace(":", "_")
+    filename = post.timestamp.isoformat().replace(":", "_") + ext
 
     original_path = os.path.join(app.config["IMG_DIR"], 'original', filename)
     small_path = os.path.join(app.config["IMG_DIR"], 'small', filename)
@@ -61,10 +60,14 @@ def get_posts():
 
 @app.route('/images/small/<name>')
 def small(name):
-    return send_from_directory(os.path.join(app.config['IMG_DIR'], 'small'), name)
+    return send_from_directory(
+        os.path.join(app.config['IMG_DIR'], 'small'), name
+    )
 
 
 @app.route('/images/original/<name>')
 def original(name):
-    return send_from_directory(os.path.join(app.config['IMG_DIR'], 'original'), name)
+    return send_from_directory(
+        os.path.join(app.config['IMG_DIR'], 'original'), name
+    )
 
