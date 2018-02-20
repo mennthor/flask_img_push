@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include 'head.html' %}
+
+  <!-- Custom styles for the gallery site -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fluid_gallery.css') }}">
+  <script async type="text/javascript" src="{{ url_for('static', filename='js/baguetteBox.min.min.js') }}"></script>
+</head>
+
+<body>
+
+<div class="container gallery-container">
+  <h1>Bilder des Tages</h1>
+  <p>WLAN: WeddingDay, kein Passwort!</p>
+  <!-- Top row 3 equal sized imgs -->
+  <div class="row">
+    <div class="col-md-4">
+      <img src="http://localhost:5000/images/2018-02-18T18_21_48.538720.jpg"
+           class="img-thumbnail img_small">
+    </div>
+    <div class="col-md-4">
+      <img src="http://localhost:5000/images/2018-02-18T18_21_48.538720.jpg"
+           class="img-thumbnail img_small">
+    </div>
+    <div class="col-md-4">
+      <img src="http://localhost:5000/images/2018-02-18T18_21_48.538720.jpg"
+           class="img-thumbnail img_small">
+    </div>
+
+    <!-- Mid and bottom row one large and two small stacked to the right -->
+  <div class="col-md-4">
+    <img src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg"
+         class="img-thumbnail img_large">
+  </div>
+  <div class="col-md-4">
+    <img src="http://localhost:5000/images/2018-02-18T18_21_48.538720.jpg"
+         class="img-thumbnail img_small">
+  </div>
+  <div class="col-md-4">
+    <img src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg"
+         class="img-thumbnail img_small">
+  </div>
+
+</body>
+
+</html>

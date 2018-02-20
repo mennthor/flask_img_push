@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% include 'head.html' %}
+
+  <!-- Custom styles for the gallery site -->
+  <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fluid-gallery.css') }}"> -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+</head>
+
+<body>
+
+<div class="container gallery-container">
+
+    <h1>Bootstrap 3 Gallery</h1>
+    <p class="page-description text-center">Fluid Layout With Overlay Effect</p>
+
+    <div class="tz-gallery">
+        <div class="row">
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-12 col-small vcenter">
+                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_12_45.256130.jpg">
+                    </div>
+                    <div class="col-md-12 col-small vcenter">
+                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-large vcenter">
+                    <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-12 col-small vcenter">
+                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+                    </div>
+                    <div class="col-md-12 col-small vcenter">
+                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
