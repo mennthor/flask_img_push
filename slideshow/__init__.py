@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, jsonify, request, send_from_directory
+from flask import (Flask, render_template, jsonify, request,
+                   send_from_directory, redirect, url_for, flash)
 from datetime import datetime
 
 from .database import database, Post
@@ -8,6 +9,7 @@ from .image import resize
 
 # Get config from env vars
 app = Flask(__name__)
+app.secret_key = "DONTTELLANYONETHESECRETKEY"
 app.config["DATABASE"] = os.getenv("SLIDESHOW_DB", "slideshow.sqlite")
 app.config["IMG_DIR"] = os.getenv(
     "SLIDESHOW_IMG_DIR", os.path.join(os.getenv("HOME"), "Pictures", "wedding")
@@ -43,23 +45,29 @@ def gallery():
 @app.route("/posts", methods=["POST"])
 def add_post():
     # Fill post db entry
-    post = Post()
-    post.timestamp = datetime.utcnow()
-    post.comment = request.form["comment"]
+    try:
+        post = Post()
+        post.timestamp = datetime.utcnow()
+        post.comment = request.form["comment"]
 
-    # Get image from form, resize and save
-    img_file = request.files["image"]
-    img_resized = resize(img_file)
+        # Get image from form, resize and save
+        img_file = request.files["image"]
+        img_resized = resize(img_file)
 
-    ext = os.path.splitext(request.files["image"].filename)[1]
-    filename = post.timestamp.isoformat().replace(":", "_") + ext
-    img_path = os.path.join(app.config["IMG_DIR"], filename)
-    img_resized.save(img_path)
+        ext = os.path.splitext(request.files["image"].filename)[1]
+        filename = post.timestamp.isoformat().replace(":", "_") + ext
+        img_path = os.path.join(app.config["IMG_DIR"], filename)
+        img_resized.save(img_path)
 
-    # Save image filename in post db and finalize
-    post.name = filename
-    post.save()
-    return jsonify(status="OK")
+        # Save image filename in post db and finalize
+        post.name = filename
+        post.save()
+        msg = "Successfully sent image :)"
+    except:
+        msg = "Something went wrong, maybe just try again :("
+
+    flash(msg)
+    return redirect(url_for("client"))
 
 
 @app.route("/posts", methods=["GET"])

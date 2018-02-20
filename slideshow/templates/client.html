@@ -6,17 +6,28 @@
 <body>
 
 <div class="container">
-	<h1>Slideshow Janine und Thorben</h1>
-	<form method="POST" action="/posts" enctype="multipart/form-data">
-		<div class="form-group">
-			<label for="imgupload">Schickn photo</label>
-			<input class="form-control-file" required id="imgupload" name="image" type="file" accept="image/*">
-		</div>
-		<div class="form-group">
-			<textarea class="form-control" rows="3" name="comment" placeholder="Sagt was"></textarea>
-		</div>
-		<button type="submit" class="btn btn-primary">Absenden</button>
-	</form>
+    <h1>Slideshow Janine und Thorben</h1>
+    <form method="POST" action="/posts" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="imgupload">Schickn photo</label>
+            <input class="form-control-file" required id="imgupload" name="image" type="file" accept="image/*">
+        </div>
+        <div class="form-group">
+            <textarea class="form-control" rows="3" name="comment" placeholder="Sagt was"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Absenden</button>
+    </form>
+</div>
+
+<div class="container">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flashes alert alert-success alert-dismissable">
+                <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+                {{ messages[0] }}
+            </div>
+        {% endif %}
+    {% endwith %}
 </div>
 
 </body>
