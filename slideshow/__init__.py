@@ -32,13 +32,53 @@ def init_app():
 @app.route("/")
 def client():
     """ Client site, for sending pictures and comments """
-    return render_template("client.html")
+    return render_template("client.html", error=request.args.get("error"))
 
 
 @app.route("/gallery")
 def gallery():
     """ Gallery site, for displaying sent pictures and comments """
-    return render_template("gallery.html")
+    # Fetch 5 images from database
+    URL = "http://127.0.0.1:5000/images/"
+    max_id = get_max_id()
+    eprint(max_id)
+
+    if max_id is not None:
+        if max_id < 5:
+            eprint("In max id < 5")
+            # Need to show with replacement because too few images
+            ids = np.random.choice(np.arange(1, max_id + 1),
+                                   replace=True, size=5)
+            eprint("Selected IDs: ", ids)
+            # These are returned unique so we have to rebroadcast them again
+            filenames = [msi.name for msi in
+                         Post.select().where(Post.id << ids.tolist())]
+            eprint("Avail Filenames: ", ids)
+            # Build a mapping from ids to [0, 1, 2, ...]
+            n_ids = len(filenames)
+            assert n_ids == len(np.unique(ids))
+            id_map = {i: _id for i, _id in zip(np.unique(ids),
+                                               np.arange(n_ids))}
+            _ids = np.array([id_map[i] for i in ids])
+            filenames = np.array(filenames)[_ids]
+            eprint("Broadcasted filenames: ", filenames)
+        else:
+            eprint("In max id >= 5")
+            ids = np.random.choice(np.arange(1, max_id + 1),
+                                   replace=False, size=5).tolist()
+            eprint("Selected IDs: ", ids)
+            # Fetch names from db and pass to template
+            filenames = [msi.name for msi in
+                         Post.select().where(Post.id << ids)]
+
+        # Prepend URL to use in img tab in template
+        filenames = {i: URL + s for i, s
+                     in enumerate(filenames)}
+    else:
+        # No imgs added yet or eror, only show placeholder
+        filenames = 5 * [URL + "_placeholder_.jpg"]
+
+    return render_template("gallery.html", filenames=filenames)
 
 
 # Receiver site to post new images and comments to and get DB info from
