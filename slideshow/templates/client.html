@@ -1,30 +1,43 @@
 <!DOCTYPE html>
 <html>
 
-{% include 'head.html' %}
+<head>
+    {% include 'head.html' %}
+    <!-- Custom styles -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/client.css') }}">
+
+</head>
 
 <body>
 
 <div class="container">
-    <h1>Slideshow Janine und Thorben</h1>
+    <!-- Input form to send a new file to the gallery -->
+    <h1 style="margin-top: 10px; margin-bottom: 15px">Schick ein Photo an den Beamer!</h1>
+
     <form method="POST" action="/posts" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="imgupload">Schickn photo</label>
-            <input class="form-control-file" required id="imgupload" name="image" type="file" accept="image/*">
+            <input class="form-control-file" required name="image" type="file" accept="image/*">
         </div>
         <div class="form-group">
-            <textarea class="form-control" rows="3" name="comment" placeholder="Sagt was"></textarea>
+            <textarea class="form-control" rows="3" name="comment"
+            placeholder="Kommentar" maxlength="160"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Absenden</button>
+        <button type="submit" class="btn btn-success">Absenden</button>
     </form>
+
 </div>
 
 <div class="container">
     {% with messages = get_flashed_messages() %}
+        <!-- If we have a message show correct box in success & error cases -->
         {% if messages %}
-            <div class="flashes alert alert-success alert-dismissable">
-                <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-                {{ messages[0] }}
+            {% if "wrong" in messages[0] %}
+                <div class="flashes alert alert-danger alert-dismissable">
+            {% else %}
+                <div class="flashes alert alert-success alert-dismissable">
+            {% endif %}
+            <a href="" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{ messages[0] }}
             </div>
         {% endif %}
     {% endwith %}
