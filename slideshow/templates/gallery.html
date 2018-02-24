@@ -4,8 +4,7 @@
 <head>
   {% include 'head.html' %}
 
-  <!-- Custom styles for the gallery site -->
-  <!-- <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fluid-gallery.css') }}"> -->
+  <!-- Custom styles -->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
 </head>
 
@@ -14,33 +13,41 @@
 <div class="container gallery-container">
 
     <h1>Bootstrap 3 Gallery</h1>
-    <p class="page-description text-center">Fluid Layout With Overlay Effect</p>
+    <p class="page-description text-center">
+        Postet eure Bilder auf die Leinwand :)
+    </p>
 
+    <!-- Nested grid layout for 2 left, 1 big centered and 2 right -->
     <div class="tz-gallery">
         <div class="row">
 
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-md-12 col-small vcenter">
-                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_12_45.256130.jpg">
+                        <img class="thumbnail" src="{{ filenames[0] }}"
+                        alt="img upper left">
                     </div>
                     <div class="col-md-12 col-small vcenter">
-                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+                        <img class="thumbnail" src="{{ filenames[1] }}"
+                        alt="img lower left">
                     </div>
                 </div>
             </div>
 
             <div class="col-md-6 col-large vcenter">
-                    <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+                    <img class="thumbnail" src="{{ filenames[2] }}"
+                    alt="img center">
             </div>
 
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-md-12 col-small vcenter">
-                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+                        <img class="thumbnail" src="{{ filenames[3] }}"
+                        alt="img upper right">
                     </div>
                     <div class="col-md-12 col-small vcenter">
-                        <img class="thumbnail" src="http://localhost:5000/images/2018-02-15T16_13_09.553679.jpg">
+                        <img class="thumbnail" src="{{ filenames[4] }}"
+                        alt="img lower right">
                     </div>
                 </div>
             </div>
