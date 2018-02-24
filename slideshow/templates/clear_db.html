@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {% include 'head.html' %}
+</head>
+
+<body>
+
+<div class="container">
+    <!-- Only a simple layout for debugging -->
+    <h1 style="margin-top: 10px; margin-bottom: 15px">Delete Database</h1>
+    {% if success %}
+        <div class="flashes alert alert-success">
+            {{ msg }}
+        </div>
+    {% else %}
+        <div class="flashes alert alert-danger">
+            {{ msg }}
+        </div>
+    {% endif %}
+</div>
+
+</body>
+
+</html>
