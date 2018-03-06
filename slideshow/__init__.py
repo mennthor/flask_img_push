@@ -9,15 +9,13 @@ from datetime import datetime
 import numpy as np
 
 from .database import database, Post
-from .image import resize
+from .image import fix_orientation
 
 
 # #######################################################################
 # TODO:
-# 1. Fix resize issue on iPhones (portrait vs landscape)
+# 1. Use flask socket-io to push new pictures to gallery instead of reload
 # 2. Backup files on DB clear
-# 3. Resize portrait and crop landscape so we fit in 4:3
-# 4. Use flask socket-io to push new pictures to gallery instead of reload
 # #######################################################################
 
 
@@ -30,18 +28,12 @@ app.config["IMG_DIR"] = os.getenv(
 )
 
 
-def eprint(*args, **kwargs):
-    """ `print` wrapper to do console debug prints """
-    return print(*args, file=sys.stderr, **kwargs)
-
-
 def get_max_id():
     """ Get max id from database """
-    max_id = None
     try:
         max_id = np.amax([msi.id for msi in Post.select()])
-    except Exception as e:
-        eprint(e)
+    except Exception:
+        max_id = None
     return max_id
 
 
@@ -70,19 +62,15 @@ def gallery():
     # Fetch 5 images from database
     URL = "http://127.0.0.1:5000/images/"
     max_id = get_max_id()
-    eprint(max_id)
 
     if max_id is not None:
         if max_id < 5:
-            eprint("In max id < 5")
             # Need to show with replacement because too few images
             ids = np.random.choice(np.arange(1, max_id + 1),
                                    replace=True, size=5)
-            eprint("Selected IDs: ", ids)
             # These are returned unique so we have to rebroadcast them again
             filenames = [msi.name for msi in
                          Post.select().where(Post.id << ids.tolist())]
-            eprint("Avail Filenames: ", ids)
             # Build a mapping from ids to [0, 1, 2, ...]
             n_ids = len(filenames)
             assert n_ids == len(np.unique(ids))
@@ -90,12 +78,9 @@ def gallery():
                                                np.arange(n_ids))}
             _ids = np.array([id_map[i] for i in ids])
             filenames = np.array(filenames)[_ids]
-            eprint("Broadcasted filenames: ", filenames)
         else:
-            eprint("In max id >= 5")
             ids = np.random.choice(np.arange(1, max_id + 1),
                                    replace=False, size=5).tolist()
-            eprint("Selected IDs: ", ids)
             # Fetch names from db and pass to template
             filenames = [msi.name for msi in
                          Post.select().where(Post.id << ids)]
@@ -122,7 +107,7 @@ def add_post():
         # Get image from form, resize and save
         img_file = request.files["image"]
         # img_resized = resize(img_file)
-        img_resized = img_file
+        img_resized = fix_orientation(img_file)
 
         ext = os.path.splitext(request.files["image"].filename)[1]
         filename = post.timestamp.isoformat().replace(":", "_") + ext
@@ -166,10 +151,8 @@ def db_clear():
         except Exception as e:
             msg = e
             success = False
-        eprint("maxid is not None. ", msg)
     else:
         msg = "DB was already empty, did nothing."
-        eprint("maxid is None. ", msg)
         success = True
 
     return render_template("clear_db.html", success=success, msg=msg)
