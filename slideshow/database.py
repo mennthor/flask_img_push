@@ -15,3 +15,12 @@ class Post(Model):
 
     class Meta:
         database = database
+
+
+def get_max_id():
+    """ Get max id from database """
+    try:
+        max_id = max([msi.id for msi in Post.select()])
+    except Exception:
+        max_id = None
+    return max_id
