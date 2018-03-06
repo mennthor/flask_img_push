@@ -5,7 +5,6 @@
     {% include 'head.html' %}
     <!-- Custom styles -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/client.css') }}">
-
 </head>
 
 <body>
@@ -20,7 +19,7 @@
         </div>
         <div class="form-group">
             <textarea class="form-control" rows="3" name="comment"
-            placeholder="Kommentar" maxlength="160"></textarea>
+            placeholder="Kommentar" maxlength="80"></textarea>
         </div>
         <button type="submit" class="btn btn-success">Absenden</button>
     </form>

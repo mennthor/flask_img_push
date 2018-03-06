@@ -6,6 +6,13 @@ h1 {
     font-size: 16px;
     font: normal 3vw sans-serif;
 }
+.comment {
+    margin: 15px auto;
+    font-size: 21px;
+    font: normal 1.5vw sans-serif;
+    max-width:600px;
+    word-wrap:break-word;
+}
 
 .container.gallery-container {
     background-color: #33302B;
