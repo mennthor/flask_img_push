@@ -2,14 +2,14 @@
 <html lang="en">
 
 <head>
-  {% include "head.html" %}
+    {% include "head.html" %}
 
-  <!-- Custom styles -->
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+    <!-- Custom styles -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
 
-  <!-- SocketIO client js -->
-  <script async type="text/javascript" src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
-  <script type="text/javascript" charset="utf-8">
+    <!-- SocketIO client js -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+    <script type="text/javascript" charset="utf-8">
     var socket = io('http://' + document.domain + ':' + location.port);
     socket.on("connect", function() { console.log("Gallery connected."); });
     socket.on("new_image", function (data) {
@@ -22,7 +22,7 @@
         $("#img_tr").attr("src", data.img_tr);
         $("#img_br").attr("src", data.img_br);
     });
-  </script>
+    </script>
 </head>
 
 <body>
@@ -39,7 +39,8 @@
         <div class="col-md-1">
             <img src="http://127.0.0.1:5000/images/qrcode.png"
             style="max-width: 100%; max-height: 100%;
-                   border-color: white; border-width: 5px; border-style: solid;">
+                   border-color: white; border-width: 5px;
+                   border-style: solid;">
         </div>
     </div>
     <p class="page-description text-center">
