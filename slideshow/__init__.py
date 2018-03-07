@@ -38,7 +38,7 @@ def init_app():
 
 def start_gallery_updater():
     """ A self starting thread to update the gallery each T seconds. """
-    t = threading.Timer(10.0, start_gallery_updater)
+    t = threading.Timer(5.0, start_gallery_updater)
     t.daemon = True
     t.start()
     print("Updated gallery", file=sys.stderr)
