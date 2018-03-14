@@ -1,15 +1,23 @@
 body {
     background-color: #FFF;
     min-height: 100vh;
-    font: normal 16px sans-serif;
-    padding: 40px 0;
+}
+h1 {
+    font-size: 16px;
+    font: normal 3vw sans-serif;
+}
+.comment {
+    margin: 15px auto;
+    font-size: 21px;
+    font: normal 1.5vw sans-serif;
+    max-width:600px;
+    word-wrap:break-word;
 }
 
 .container.gallery-container {
     background-color: #33302B;
     color: #60AFDD;
     min-height: 100vh;
-    padding: 30px 00px;
 }
 
 .gallery-container h1 {
@@ -21,54 +29,82 @@ body {
 
 .gallery-container p.page-description {
     text-align: center;
-    margin: 20px auto;
-    font-size: 21px;
     color: #9E9687;
 }
 
-.tz-gallery {
-    padding-top: 20px;
-    padding-left: 50px;
-    padding-right: 50px;
-}
-
-/* Override bootstrap column paddings */
-.vcenter {
+/* Center image and display in correct ratio */
+.tz-gallery .vcenter {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.col-small {
-    padding: 10px;
-/*    border-width:        5px;
-    border-style:        solid;
-    border-color:        white;*/
-    height: 400px;
-}
-
-.col-large {
-    padding: 10px;
-/*    border-width:        5px;
-    border-style:        solid;
-    border-color:        white;*/
-    height: 800px;
-}
-
 .tz-gallery .thumbnail {
     max-width: 100%;
     max-height: 100%;
+    padding: 10px;
     margin: auto;
     margin-left: auto;
     margin-right: auto;
 }
 
-/* Make container fill whole FullHD screen */
-@media(min-width: 1200px) {
+/* Explicit paddings for different beamer types */
+/* 720p Beamer */
+@media(min-height: 720px) {
     .container{
-            max-width: 1920px;
-        }
-    body {
-        padding: 0;
+        max-width: 1280px;
+    }
+    .container.gallery-container {
+        padding: 10px 00px;
+    }
+    .gallery-container p.page-description {
+        margin: 8px auto;
+        font-size: 21px;
+        font: normal 2vw sans-serif;
+    }
+    .tz-gallery {
+        padding-top: 20px;
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    .col-small {
+        padding: 10px;
+        width: 350px;
+        height: 262px;
+    }
+    .col-large {
+        padding: 10px;
+        width: 700px;
+        height: 525px;
+    }
+}
+
+/* 1080p Beamer */
+@media(min-height: 1080px) {
+    .container{
+        max-width: 1920px;
+    }
+    .container.gallery-container {
+        padding: 50px 00px;
+    }
+    .gallery-container p.page-description {
+        margin: 10px auto;
+        font-size: 32px;
+        font: normal 2vw sans-serif;
+    }
+    .tz-gallery {
+        padding-top: 50px;
+        padding-left: 50px;
+        padding-right: 50px;
+    }
+    .col-small {
+        padding: 10px;
+        width: 450px;
+        height: 337px;
+    }
+    .col-large {
+        padding: 10px;
+        width: 900px;
+        height: 675px;
     }
 }

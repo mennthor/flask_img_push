@@ -2,19 +2,36 @@
 <html lang="en">
 
 <head>
-  {% include 'head.html' %}
+    {% include "head.html" %}
 
-  <!-- Custom styles -->
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+    <!-- Custom styles -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/gallery.css') }}">
+
+    <!-- SocketIO client js -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+    <script type="text/javascript" charset="utf-8">
+    var socket = io('http://' + document.domain + ':' + location.port);
+    socket.on("connect", function() { console.log("Gallery connected."); });
+    socket.on("new_image", function (data) {
+        $("#img_main").attr("src", data.filename);
+        $("#comment").text(data.comment);
+    });
+    socket.on("update", function (data) {
+        $("#img_tl").attr("src", data.img_tl);
+        $("#img_bl").attr("src", data.img_bl);
+        $("#img_tr").attr("src", data.img_tr);
+        $("#img_br").attr("src", data.img_br);
+    });
+    </script>
 </head>
 
 <body>
 
 <div class="container gallery-container">
 
-    <h1>Bootstrap 3 Gallery</h1>
+    <h1>Hochzeitsgalerie</h1>
     <p class="page-description text-center">
-        Postet eure Bilder auf die Leinwand :)
+        Postet eure Bilder auf die Leinwand 🙃
     </p>
 
     <!-- Nested grid layout for 2 left, 1 big centered and 2 right -->
@@ -25,29 +42,29 @@
                 <div class="row">
                     <div class="col-md-12 col-small vcenter">
                         <img class="thumbnail" src="{{ filenames[0] }}"
-                        alt="img upper left">
+                        alt="img upper left" id="img_tl">
                     </div>
                     <div class="col-md-12 col-small vcenter">
                         <img class="thumbnail" src="{{ filenames[1] }}"
-                        alt="img lower left">
+                        alt="img lower left" id="img_bl">
                     </div>
                 </div>
             </div>
 
             <div class="col-md-6 col-large vcenter">
-                    <img class="thumbnail" src="{{ filenames[2] }}"
-                    alt="img center">
+                    <img class="thumbnail" id="img_main"
+                    src="{{ filenames[2] }}" alt="img center">
             </div>
 
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-md-12 col-small vcenter">
                         <img class="thumbnail" src="{{ filenames[3] }}"
-                        alt="img upper right">
+                        alt="img upper right" id="img_tr">
                     </div>
                     <div class="col-md-12 col-small vcenter">
                         <img class="thumbnail" src="{{ filenames[4] }}"
-                        alt="img lower right">
+                        alt="img lower right" id="img_br">
                     </div>
                 </div>
             </div>
@@ -56,6 +73,7 @@
 
     </div>
 
+<p id="comment" class="text-center comment">{{comment}}</p>
 </div>
 
 </body>

@@ -2,7 +2,8 @@
 Helper method to handle images.
 """
 
-from PIL import Image
+from PIL import Image, ExifTags
+import sys
 
 
 def resize(in_file, long_edge=3000):
@@ -34,3 +35,44 @@ def crop_and_resize(in_file, ratio=None, long_edge=800):
     in the HTML template later.
     """
     return in_file
+
+
+def fix_orientation(img_file):
+    """
+    iPhones capture landscape and write EXIF to rotate
+    http://sylvana.net/jpegcrop/exif_orientation.html
+    https://stackoverflow.com/questions/26697230/incorrect-image-rotation-in-img-tag
+    """
+    img = Image.open(img_file)
+    exif = get_exif(img)
+    if (exif is None) or ("Orientation" not in exif.keys()):
+        """ Picture is probably OK by measuring the real pixels """
+        return img
+    else:
+        orientation = int(exif["Orientation"])
+        """ Cases 3, 6, 8 are rotated cases """
+        if orientation == 3:
+            img = img.rotate(180, expand=True)
+        elif orientation == 6:
+            img = img.rotate(-90, expand=True)
+        elif orientation == 8:
+            img = img.rotate(+90, expand=True)
+
+    return img
+
+
+def get_exif(img):
+    """
+    Returns an EXIF dict with string keys where possible.
+    From: https://stackoverflow.com/questions/4764932/in-python-how-do-i-read-the-exif-data-for-an-image
+    """
+    exif = img._getexif()
+    if isinstance(exif, dict):
+        exif = {
+            ExifTags.TAGS[k]: v
+            for k, v in exif.items()
+            if k in ExifTags.TAGS
+            }
+    else:
+        exif = None
+    return exif

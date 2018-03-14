@@ -3,49 +3,26 @@
 from __future__ import print_function
 import os
 import sys
+import threading
 from flask import (Flask, render_template, jsonify, request,
                    send_from_directory, redirect, url_for, flash)
+from flask_socketio import SocketIO
 from datetime import datetime
 import numpy as np
 
-from .database import database, Post
-from .image import resize
+from .database import database, Post, get_rnd_db_entries, get_max_id
+from .image import fix_orientation
 
 
-# #######################################################################
-# TODO:
-# 1. Fix resize issue on iPhones (portrait vs landscape)
-# 2. Backup files on DB clear
-# 3. Resize portrait and crop landscape so we fit in 4:3
-# 4. Use flask socket-io to push new pictures to gallery instead of reload
-# #######################################################################
-
-
-# Get config from env vars
 app = Flask(__name__)
 app.secret_key = "DONTTELLANYONETHESECRETKEY"
 app.config["DATABASE"] = os.getenv("SLIDESHOW_DB", "slideshow.sqlite")
-app.config["IMG_DIR"] = os.getenv(
-    "SLIDESHOW_IMG_DIR", os.path.join(os.getenv("HOME"), "Pictures", "wedding")
-)
+app.config["IMG_DIR"] = os.getenv("SLIDESHOW_IMG_DIR",
+                                  os.path.join(os.getenv("HOME"),
+                                               "Pictures", "wedding"))
 
 
-def eprint(*args, **kwargs):
-    """ `print` wrapper to do console debug prints """
-    return print(*args, file=sys.stderr, **kwargs)
-
-
-def get_max_id():
-    """ Get max id from database """
-    max_id = None
-    try:
-        max_id = np.amax([msi.id for msi in Post.select()])
-    except Exception as e:
-        eprint(e)
-    return max_id
-
-
-# Init on launch
+# Init app before launch
 @app.before_first_request
 def init_app():
     # Images are saved as posted and cropped with fixed ratios later
@@ -55,74 +32,64 @@ def init_app():
     # Setup database
     database.init(app.config["DATABASE"])
     database.create_tables([Post], safe=True)
+    # Set the timer to push new random content to gallery
+    start_gallery_updater()
 
 
-# These are the public interfaces sites
+def start_gallery_updater():
+    """ A self starting thread to update the gallery each T seconds. """
+    t = threading.Timer(15.0, start_gallery_updater)
+    t.daemon = True
+    t.start()
+    print("Updated gallery", file=sys.stderr)
+    filenames, _ = get_rnd_db_entries(N=4)
+    URL = "http://127.0.0.1:5000/images/"
+    filenames = {i: URL + s for i, s in enumerate(filenames)}
+    socket.emit("update", {"img_tl": filenames[0],
+                           "img_bl": filenames[1],
+                           "img_tr": filenames[2],
+                           "img_br": filenames[3],
+                           })
+
+
+# Init flask SocketIO
+socket = SocketIO()
+socket.init_app(app)
+
+
+# Client mobile page
 @app.route("/")
 def client():
     """ Client site, for sending pictures and comments """
     return render_template("client.html", error=request.args.get("error"))
 
 
+# Passive image gallery
 @app.route("/gallery")
 def gallery():
     """ Gallery site, for displaying sent pictures and comments """
     # Fetch 5 images from database
+    filenames, comments = get_rnd_db_entries(N=5)
     URL = "http://127.0.0.1:5000/images/"
-    max_id = get_max_id()
-    eprint(max_id)
-
-    if max_id is not None:
-        if max_id < 5:
-            eprint("In max id < 5")
-            # Need to show with replacement because too few images
-            ids = np.random.choice(np.arange(1, max_id + 1),
-                                   replace=True, size=5)
-            eprint("Selected IDs: ", ids)
-            # These are returned unique so we have to rebroadcast them again
-            filenames = [msi.name for msi in
-                         Post.select().where(Post.id << ids.tolist())]
-            eprint("Avail Filenames: ", ids)
-            # Build a mapping from ids to [0, 1, 2, ...]
-            n_ids = len(filenames)
-            assert n_ids == len(np.unique(ids))
-            id_map = {i: _id for i, _id in zip(np.unique(ids),
-                                               np.arange(n_ids))}
-            _ids = np.array([id_map[i] for i in ids])
-            filenames = np.array(filenames)[_ids]
-            eprint("Broadcasted filenames: ", filenames)
-        else:
-            eprint("In max id >= 5")
-            ids = np.random.choice(np.arange(1, max_id + 1),
-                                   replace=False, size=5).tolist()
-            eprint("Selected IDs: ", ids)
-            # Fetch names from db and pass to template
-            filenames = [msi.name for msi in
-                         Post.select().where(Post.id << ids)]
-
-        # Prepend URL to use in img tab in template
-        filenames = {i: URL + s for i, s
-                     in enumerate(filenames)}
-    else:
-        # No imgs added yet or eror, only show placeholder
-        filenames = 5 * [URL + "_placeholder_.jpg"]
-
-    return render_template("gallery.html", filenames=filenames)
+    filenames = {i: URL + s for i, s in enumerate(filenames)}
+    return render_template("gallery.html", filenames=filenames,
+                           comment=comments[2])
 
 
 # Receiver site to post new images and comments to and get DB info from
 @app.route("/posts", methods=["POST"])
 def add_post():
     # Fill post db entry
+    URL = "http://127.0.0.1:5000/images/"
     try:
         post = Post()
         post.timestamp = datetime.utcnow()
-        post.comment = request.form["comment"]
+        comment = request.form["comment"]
+        post.comment = comment
 
         # Get image from form, resize and save
         img_file = request.files["image"]
-        # img_resized = resize(img_file)
-        img_resized = img_file
+        img_resized = fix_orientation(img_file)
 
         ext = os.path.splitext(request.files["image"].filename)[1]
         filename = post.timestamp.isoformat().replace(":", "_") + ext
@@ -133,6 +100,9 @@ def add_post():
         post.name = filename
         post.save()
         msg = "Successfully sent image :)"
+
+        socket.emit("new_image", {"filename": URL + filename,
+                                  "comment": comment})
     except Exception as e:
         msg = e
 
@@ -152,12 +122,13 @@ def img_host(name):
     return send_from_directory(app.config['IMG_DIR'], name)
 
 
-# Clear database site
+# DEBUG: Clear database site
 @app.route("/database_clear")
 def db_clear():
     max_id = get_max_id()
     if max_id is not None:
         del_query = (Post.delete()
+                     # .where(Post.id == max_id))
                      .where(Post.id << np.arange(1, max_id + 1).tolist()))
         try:
             rows_del = del_query.execute()
@@ -166,16 +137,14 @@ def db_clear():
         except Exception as e:
             msg = e
             success = False
-        eprint("maxid is not None. ", msg)
     else:
         msg = "DB was already empty, did nothing."
-        eprint("maxid is None. ", msg)
         success = True
 
     return render_template("clear_db.html", success=success, msg=msg)
 
 
-# Show database content
+# DEBUG: Show database content
 @app.route("/database_show")
 def db_show():
     query = Post.select()
@@ -184,3 +153,25 @@ def db_show():
         s += "{}: {}".format(item.id, item.name) + "<br>"
 
     return s
+
+
+# DEBUG to test socket io
+# @app.route("/sender", methods=["GET", "POST"])
+# def sender():
+#     if request.method == "POST":
+#         txt = request.form["msg"]
+#         socket.emit("to_receiver", {"parameter": txt})
+#         return redirect(url_for("sender"))
+
+#     msg = request.args.get("message", "no msg yet...")
+#     return render_template("sender.html", message=msg)
+
+
+# @app.route("/receiver", methods=["GET"])
+# def receiver():
+#     return render_template("receiver.html")
+
+
+# Start the server wrapper
+def start_server():
+    socket.run(app, host="0.0.0.0", debug=True)
