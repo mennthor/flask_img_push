@@ -1,6 +1,7 @@
 # flask_img_push
 
-Flask app which enables users to push images from their phones to a single gallery page running on a beamer.
+Flask app which enables users to push images from their phones to a single gallery page running on a beamer.  
+Thanks to @bixel and @MaxNoe.
 
 1. Create a new python 3 virtual environment and `pip install -r requirements.txt`.
 2. `python start.py` to start the debug server at `localhost:5000`.
