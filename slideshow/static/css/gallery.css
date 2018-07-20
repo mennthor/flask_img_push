@@ -15,21 +15,22 @@ h1 {
 }
 
 .container.gallery-container {
-    background-color: #33302B;
-    color: #60AFDD;
+    background-color: #faeced;
+    /*background-image: url("background.jpg")*/
+    color: #545d4c;
     min-height: 100vh;
 }
 
 .gallery-container h1 {
     text-align: center;
     margin-top: 20px;
-    font-family: 'Droid Sans', sans-serif;
-    font-weight: bold;
+    font-family: 'DejaVu Sans', sans-serif;
+    font-weight: light;
 }
 
 .gallery-container p.page-description {
     text-align: center;
-    color: #9E9687;
+    color: #977c72;
 }
 
 /* Center image and display in correct ratio */
