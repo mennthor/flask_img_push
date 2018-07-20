@@ -15,10 +15,9 @@ h1 {
 }
 
 .container.gallery-container {
-    background-color: #faeced;
-    /*background-image: url("background.jpg")*/
+    background: url("bgnd1.png") #faeced;
     color: #545d4c;
-    min-height: 100vh;
+    min-height: 100vh;*/
 }
 
 .gallery-container h1 {
